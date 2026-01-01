@@ -14,9 +14,10 @@ import { useToast } from "@/hooks/use-toast";
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
+  isGuestPrompt?: boolean;
 }
 
-export function AuthModal({ isOpen, onClose }: AuthModalProps) {
+export function AuthModal({ isOpen, onClose, isGuestPrompt = false }: AuthModalProps) {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -68,6 +69,11 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           <DialogTitle className="text-xl font-bold text-foreground">
             {isLogin ? "Welcome Back" : "Create Account"}
           </DialogTitle>
+          {isGuestPrompt && (
+            <p className="text-sm text-muted-foreground mt-2">
+              Sign up to save your chat history and continue the conversation later!
+            </p>
+          )}
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">

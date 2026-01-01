@@ -10,6 +10,8 @@ import { AuthModal } from "@/components/AuthModal";
 import { streamChat, Message, MessageContent } from "@/lib/chat";
 import { useToast } from "@/hooks/use-toast";
 
+const GUEST_MESSAGE_LIMIT = 3;
+
 const Index = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -17,6 +19,7 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [guestMessageCount, setGuestMessageCount] = useState(0);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -36,9 +39,15 @@ const Index = () => {
   }, []);
 
   const handleSend = async (content: string, imageDataUrl?: string) => {
+    // Guest mode: allow chatting but prompt after a few messages
     if (!user) {
-      setShowAuthModal(true);
-      return;
+      const newCount = guestMessageCount + 1;
+      setGuestMessageCount(newCount);
+      
+      if (newCount >= GUEST_MESSAGE_LIMIT) {
+        // Show auth modal after limit, but still allow the message
+        setTimeout(() => setShowAuthModal(true), 1000);
+      }
     }
 
     let messageContent: string | MessageContent[];
@@ -150,7 +159,8 @@ const Index = () => {
 
       <AuthModal 
         isOpen={showAuthModal} 
-        onClose={() => setShowAuthModal(false)} 
+        onClose={() => setShowAuthModal(false)}
+        isGuestPrompt={!user && guestMessageCount >= GUEST_MESSAGE_LIMIT}
       />
     </div>
   );
